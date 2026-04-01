@@ -50,7 +50,7 @@ class LibraryView extends ConsumerWidget {
                 final totalCount = activeList.length + completedItems.length + 1; // +1 for AddInstanceCard
 
                 return GridView.builder(
-                  padding: const EdgeInsets.only(top: 80, bottom: 48), // Increased top padding for floating buttons
+                  padding: const EdgeInsets.only(top: 120.0, bottom: 48), // Increased top padding for floating buttons
                   gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 280,
                     mainAxisExtent: 380, // Taller aspect ratio as per mockup
@@ -98,7 +98,7 @@ class LibraryView extends ConsumerWidget {
             ),
               ),
               Positioned(
-                top: 0,
+                top: 24.0,
                 right: isSmall ? 20 : 40,
                 left: isSmall ? 20 : null,
                 child: const LibraryActionButtons(),
@@ -117,6 +117,7 @@ class LibraryView extends ConsumerWidget {
         },
         backgroundColor: AppColors.actionCyan,
         elevation: 12,
+        isExtended: !isSmall,
         icon: const Icon(Icons.add, color: AppColors.sidebarBackground, size: 22),
         label: const Text(
           'New Instance',

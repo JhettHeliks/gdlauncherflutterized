@@ -83,20 +83,35 @@ class LibraryInstanceCard extends HookConsumerWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: iconPath != null
-                        ? Image.file(
-                            File(iconPath!),
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              color: AppColors.background,
-                              child: const Center(
-                                child: Icon(
-                                  Icons.videogame_asset,
-                                  color: Colors.white24,
-                                  size: 48,
+                        ? (iconPath!.startsWith('http')
+                            ? Image.network(
+                                iconPath!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Container(
+                                  color: AppColors.background,
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.videogame_asset,
+                                      color: Colors.white24,
+                                      size: 48,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          )
+                              )
+                            : Image.file(
+                                File(iconPath!),
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Container(
+                                  color: AppColors.background,
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.videogame_asset,
+                                      color: Colors.white24,
+                                      size: 48,
+                                    ),
+                                  ),
+                                ),
+                              ))
                         : Container(
                             color: AppColors.background,
                             child: const Center(
