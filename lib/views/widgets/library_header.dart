@@ -12,8 +12,10 @@ class LibraryHeader extends HookConsumerWidget {
     final isSmall = MediaQuery.sizeOf(context).width < 800;
     final isDescriptionExpanded = useState(false);
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: isSmall ? 20 : 40, vertical: isSmall ? 12.0 : 24.0),
+    return Container(
+      color: AppColors.background,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: isSmall ? 20 : 40, vertical: 12.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,14 +83,9 @@ class LibraryHeader extends HookConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(width: 24),
-          const Padding(
-            padding: EdgeInsets.only(top: 6.0),
-            child: LibraryActionButtons(),
-          ),
         ],
       ),
-    );
+    ));
   }
 }
 
@@ -253,7 +250,7 @@ class ExpandingFilterButton extends HookConsumerWidget {
                             ? Container(
                                 key: const ValueKey('expanded-text'),
                                 height: 56,
-                                padding: const EdgeInsets.only(left: 12),
+                                padding: const EdgeInsets.only(left: 12, right: 42),
                                 alignment: Alignment.centerLeft,
                                 child: const Text(
                                   'Filter',

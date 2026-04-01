@@ -48,7 +48,7 @@ class LibraryView extends ConsumerWidget {
                 final totalCount = activeList.length + completedItems.length + 1; // +1 for AddInstanceCard
 
                 return GridView.builder(
-                  padding: EdgeInsets.only(top: isSmall ? 100.0 : 140.0, bottom: 48), // Adjusted top padding for new header overlay
+                  padding: const EdgeInsets.only(top: 100.0, bottom: 48), // Adjusted top padding for unified header
                   gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 280,
                     mainAxisExtent: 380, // Taller aspect ratio as per mockup
@@ -97,12 +97,19 @@ class LibraryView extends ConsumerWidget {
           ),
         ),
         
-        // Header Text and Action Buttons Overlay
+        // Header Text block (Solid background)
         const Positioned(
           top: 0,
           left: 0,
           right: 0,
           child: LibraryHeader(),
+        ),
+
+        // Action Buttons Overlay (Decoupled to prevent dropdown clipping)
+        Positioned(
+          top: 18.0, // 12.0 padding + 6.0 offset
+          right: isSmall ? 20.0 : 40.0,
+          child: const LibraryActionButtons(),
         ),
 
         // New Instance Expanding Action Button Overlay
