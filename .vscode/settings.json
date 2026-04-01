@@ -6,5 +6,6 @@
         "modrinth",
         "Modrinth",
         "neoforge"
-    ]
+    ],
+    "cmake.ignoreCMakeListsMissing": true
 }

@@ -2,13 +2,18 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../providers/archive_provider.dart';
 import '../../src/rust/api/archive_parser.dart';
 import '../../src/rust/api/importer_pipeline.dart';
+import '../../src/rust/api/downloader.dart';
+import '../../src/rust/api/downloader.dart';
 import '../../theme/colors.dart';
+import '../../providers/log_provider.dart';
+import '../../providers/installation_provider.dart';
 
-class ImportDialog extends ConsumerWidget {
+class ImportDialog extends HookConsumerWidget {
   final String zipPath;
 
   const ImportDialog({super.key, required this.zipPath});
@@ -16,6 +21,7 @@ class ImportDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final archiveMetadataAsync = ref.watch(modpackArchiveAnalyzerProvider(zipPath));
+    final isImporting = useState(false);
 
     return AlertDialog(
       title: const Text('Import Modpack'),
@@ -45,49 +51,56 @@ class ImportDialog extends ConsumerWidget {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: isImporting.value ? null : () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
         TextButton(
-          // Only enable if we have successfully parsed the data
-          onPressed: archiveMetadataAsync.hasValue
+          // Only enable if we have successfully parsed the data and aren't currently importing
+          onPressed: archiveMetadataAsync.hasValue && !isImporting.value
               ? () async {
                   final metadata = metadataFromAsync(archiveMetadataAsync);
                   if (metadata == null) return;
                   
+                  isImporting.value = true;
                   debugPrint('Import started for ${metadata.name}');
+                  appLogger.i('Import started for ${metadata.name}');
                   
                   try {
-                    final docsDir = await getApplicationDocumentsDirectory();
-                    // Cleanse the name to make a safe folder path
-                    final safeName = metadata.name.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_').trim();
-                    final destFolder = Directory('${docsDir.path}\\GDLauncherInstances\\$safeName');
-                    
-                    if (!await destFolder.exists()) {
-                      await destFolder.create(recursive: true);
-                    }
-                    
                     // Show a simple loading snackbar
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Extracting ${metadata.name}...')),
+                        SnackBar(content: Text('Extracting & Downloading ${metadata.name}...')),
                       );
-                      Navigator.of(context).pop(); // Close dialog early while extracting
                     }
                     
-                    final fileIds = await extractCurseforgeZip(
-                      zipPath: zipPath, 
-                      destinationFolder: destFolder.path
+                    final extractResult = await extractCurseforgeZip(
+                      zipPath: zipPath,
                     );
                     
-                    debugPrint('Successfully extracted override files. Download these file_ids: $fileIds');
+                    final instancePath = extractResult.$1;
+                    final fileIds = extractResult.$2;
+                    
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                    
+                    ref.read(installationProgressProvider.notifier).startInstallation(
+                      metadata.name,
+                      instancePath,
+                      fileIds,
+                      r'$2a$10$T6FGRH9NF8E7uJbiCbEPWONrUEe5u/RsoxqSkx9E1WikxgjqEMQg6',
+                    );
                     
                   } catch (e) {
+                    appLogger.e('Zip Extractor failed a file system operation: $e');
                     debugPrint('Extraction failed: $e');
+                    isImporting.value = false;
                   }
                 }
               : null,
-          child: const Text('Confirm Import'),
+          child: isImporting.value 
+              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+              : const Text('Confirm Import'),
         ),
       ],
     );

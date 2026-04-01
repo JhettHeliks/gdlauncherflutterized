@@ -3,10 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gdlauncherflutterized/src/rust/frb_generated.dart';
 import 'views/launcher_layout.dart';
 import 'theme/colors.dart';
+import 'providers/log_provider.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await RustLib.init();
-  runApp(const ProviderScope(child: MyApp()));
+  final container = ProviderContainer();
+  await initLogging(container);
+  appLogger.i('Application Initialized');
+  runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

@@ -7,6 +7,7 @@
 // ignore_for_file: argument_type_not_assignable
 
 import 'api/archive_parser.dart';
+import 'api/downloader.dart';
 import 'api/importer.dart';
 import 'api/importer_pipeline.dart';
 import 'api/settings_manager.dart';
@@ -28,10 +29,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  RustStreamSink<DownloadProgress> dco_decode_StreamSink_download_progress_Sse(
+    dynamic raw,
+  );
+
+  @protected
   String dco_decode_String(dynamic raw);
 
   @protected
   LauncherSettings dco_decode_box_autoadd_launcher_settings(dynamic raw);
+
+  @protected
+  DownloadProgress dco_decode_download_progress(dynamic raw);
 
   @protected
   int dco_decode_i_32(dynamic raw);
@@ -44,6 +53,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<ImportableInstance> dco_decode_list_importable_instance(dynamic raw);
+
+  @protected
+  List<int> dco_decode_list_prim_i_32_loose(dynamic raw);
 
   @protected
   Int32List dco_decode_list_prim_i_32_strict(dynamic raw);
@@ -61,6 +73,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ParsedArchiveMetadata dco_decode_parsed_archive_metadata(dynamic raw);
 
   @protected
+  (String, Int32List) dco_decode_record_string_list_prim_i_32_strict(
+    dynamic raw,
+  );
+
+  @protected
+  int dco_decode_u_32(dynamic raw);
+
+  @protected
   int dco_decode_u_8(dynamic raw);
 
   @protected
@@ -70,12 +90,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  RustStreamSink<DownloadProgress> sse_decode_StreamSink_download_progress_Sse(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
   LauncherSettings sse_decode_box_autoadd_launcher_settings(
     SseDeserializer deserializer,
   );
+
+  @protected
+  DownloadProgress sse_decode_download_progress(SseDeserializer deserializer);
 
   @protected
   int sse_decode_i_32(SseDeserializer deserializer);
@@ -92,6 +120,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<ImportableInstance> sse_decode_list_importable_instance(
     SseDeserializer deserializer,
   );
+
+  @protected
+  List<int> sse_decode_list_prim_i_32_loose(SseDeserializer deserializer);
 
   @protected
   Int32List sse_decode_list_prim_i_32_strict(SseDeserializer deserializer);
@@ -113,6 +144,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  (String, Int32List) sse_decode_record_string_list_prim_i_32_strict(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  int sse_decode_u_32(SseDeserializer deserializer);
+
+  @protected
   int sse_decode_u_8(SseDeserializer deserializer);
 
   @protected
@@ -128,11 +167,23 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_StreamSink_download_progress_Sse(
+    RustStreamSink<DownloadProgress> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_launcher_settings(
     LauncherSettings self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_download_progress(
+    DownloadProgress self,
     SseSerializer serializer,
   );
 
@@ -154,6 +205,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_importable_instance(
     List<ImportableInstance> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_prim_i_32_loose(
+    List<int> self,
     SseSerializer serializer,
   );
 
@@ -183,6 +240,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     ParsedArchiveMetadata self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_record_string_list_prim_i_32_strict(
+    (String, Int32List) self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_u_32(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_8(int self, SseSerializer serializer);

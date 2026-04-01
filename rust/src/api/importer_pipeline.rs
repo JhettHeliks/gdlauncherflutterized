@@ -1,8 +1,9 @@
+use crate::api::settings_manager::load_settings;
 use anyhow::{anyhow, Context};
 use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
 use std::io::{self, Read};
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf};
 use zip::ZipArchive;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -30,7 +31,9 @@ pub struct CurseForgeModLoader {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CurseForgeFile {
+    #[serde(rename = "projectID")]
     pub project_id: i32,
+    #[serde(rename = "fileID")]
     pub file_id: i32,
     pub required: bool,
 }
@@ -43,12 +46,7 @@ pub struct CosmicInstance {
     pub modloader: String,
 }
 
-pub fn extract_curseforge_zip(zip_path: String, destination_folder: String) -> anyhow::Result<Vec<i32>> {
-    let dest_path = PathBuf::from(&destination_folder);
-    if !dest_path.exists() {
-        fs::create_dir_all(&dest_path).context("Failed to create destination folder")?;
-    }
-
+pub fn extract_curseforge_zip(zip_path: String) -> anyhow::Result<(String, Vec<i32>)> {
     let file = File::open(&zip_path).context("Failed to open zip file")?;
     let mut archive = ZipArchive::new(file).context("Failed to parse zip archive")?;
     
@@ -61,6 +59,19 @@ pub fn extract_curseforge_zip(zip_path: String, destination_folder: String) -> a
     };
     
     let manifest: CurseForgeManifest = serde_json::from_str(&manifest_str).context("Failed to parse manifest.json")?;
+    
+    // Determine destination directory using settings
+    let settings = load_settings();
+    let instance_dir = PathBuf::from(settings.instance_dir);
+    
+    // Sanitize modpack name explicitly
+    let safe_name = manifest.name.replace(&['<', '>', ':', '"', '/', '\\', '|', '?', '*'][..], "_").trim().to_string();
+    let dest_path = instance_dir.join(&safe_name);
+    
+    if !dest_path.exists() {
+        fs::create_dir_all(&dest_path).context("Failed to create destination folder")?;
+    }
+
     let modloader = manifest.minecraft.mod_loaders.iter()
         .find(|l| l.primary)
         .map_or("unknown".to_string(), |l| l.id.clone());
@@ -103,5 +114,5 @@ pub fn extract_curseforge_zip(zip_path: String, destination_folder: String) -> a
     }
     
     let file_ids = manifest.files.into_iter().map(|f| f.file_id).collect();
-    Ok(file_ids)
+    Ok((dest_path.to_string_lossy().to_string(), file_ids))
 }

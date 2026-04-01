@@ -7,6 +7,7 @@ import '../providers/navigation_provider.dart';
 import 'browse_view.dart';
 import 'library_view.dart';
 import 'settings_view.dart';
+import 'log_reader_view.dart';
 
 class LauncherLayout extends ConsumerWidget {
   const LauncherLayout({super.key});
@@ -60,6 +61,9 @@ class LauncherLayout extends ConsumerWidget {
     }
     if (selectedIndex == 3) {
       return const SettingsView(key: ValueKey('settings_view'));
+    }
+    if (selectedIndex == 4) {
+      return const LogReaderView(key: ValueKey('log_reader_view'));
     }
     
     // Default to Dashboard view

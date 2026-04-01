@@ -116,19 +116,33 @@ class Sidebar extends ConsumerWidget {
           const SizedBox(height: 24),
           
           // Log Files
-          const Row(
-            children: [
-              Icon(Icons.description, color: AppColors.textSecondary, size: 16),
-              SizedBox(width: 8),
-              Text(
-                'Log Files',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(4),
+              onTap: () => ref.read(navigationIndexProvider.notifier).setIndex(4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.description, 
+                      color: selectedIndex == 4 ? AppColors.primaryAccent : AppColors.textSecondary, 
+                      size: 16
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Log Files',
+                      style: TextStyle(
+                        color: selectedIndex == 4 ? AppColors.primaryAccent : AppColors.textSecondary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    )
+                  ],
                 ),
-              )
-            ],
+              ),
+            ),
           ),
         ],
       ),

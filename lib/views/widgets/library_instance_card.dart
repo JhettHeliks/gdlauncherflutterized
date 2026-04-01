@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../theme/colors.dart';
+import '../../providers/installation_provider.dart';
 
 class LibraryInstanceCard extends HookConsumerWidget {
   final String title;
@@ -27,6 +28,9 @@ class LibraryInstanceCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isHovered = useState(false);
+    final installState = ref.watch(installationProgressProvider);
+    final isInstalling = installState.containsKey(title);
+    final progress = installState[title];
 
     return MouseRegion(
       onEnter: (_) => isHovered.value = true,
@@ -104,6 +108,53 @@ class LibraryInstanceCard extends HookConsumerWidget {
                       children: badges.map((badgeText) => _buildBadge(badgeText, isHovered.value)).toList(),
                     ),
                   ),
+
+                  // Active Installation Progress Overlay
+                  if (isInstalling && progress != null)
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.background.withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '${progress.totalFiles > 0 ? (progress.downloadedFiles / progress.totalFiles * 100).toInt() : 0}%',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.primaryAccent,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: progress.totalFiles > 0 ? progress.downloadedFiles / progress.totalFiles : null,
+                                backgroundColor: AppColors.sidebarBackground,
+                                color: AppColors.primaryAccent,
+                                minHeight: 6,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Downloading:\n${progress.currentFile}',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: AppColors.textSecondary,
+                                height: 1.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -144,13 +195,14 @@ class LibraryInstanceCard extends HookConsumerWidget {
                 const SizedBox(width: 16),
                 
                 // Play Button
-                AnimatedScale(
-                  scale: isHovered.value ? 1.0 : 0.9,
-                  duration: const Duration(milliseconds: 150),
-                  child: Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
+                if (!isInstalling)
+                  AnimatedScale(
+                    scale: isHovered.value ? 1.0 : 0.9,
+                    duration: const Duration(milliseconds: 150),
+                    child: Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppColors.primaryAccent,
                       boxShadow: [
@@ -168,6 +220,16 @@ class LibraryInstanceCard extends HookConsumerWidget {
                     ),
                   ),
                 ),
+                if (isInstalling)
+                  const SizedBox(
+                    width: 52,
+                    height: 52,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryAccent,
+                      ),
+                    ),
+                  ),
               ],
             ),
             const SizedBox(height: 24),
