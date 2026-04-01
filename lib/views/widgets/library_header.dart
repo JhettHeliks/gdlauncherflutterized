@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../providers/importer_provider.dart';
 import '../../theme/colors.dart';
 
@@ -53,76 +54,32 @@ class LibraryActionButtons extends ConsumerWidget {
       scrollDirection: Axis.horizontal,
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          isSmall 
-              ? _buildIconButton(Icons.refresh, onTap: () => ref.invalidate(curseForgeScannerProvider))
-              : _buildDarkButton(Icons.refresh, 'Refresh', onTap: () {
-                  ref.invalidate(curseForgeScannerProvider);
-                }),
-          const SizedBox(width: 12.0),
-          PopupMenuButton<String>(
-            color: AppColors.surface,
-            elevation: 24,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            offset: const Offset(0, 56),
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'all', child: Text('All Packs', style: TextStyle(color: AppColors.textPrimary))),
-              PopupMenuItem(value: 'adventure', child: Text('Adventure', style: TextStyle(color: AppColors.textPrimary))),
-              PopupMenuItem(value: 'tech', child: Text('Tech', style: TextStyle(color: AppColors.textPrimary))),
-              PopupMenuItem(value: 'magic', child: Text('Magic', style: TextStyle(color: AppColors.textPrimary))),
-            ],
-            child: isSmall ? _buildIconButton(Icons.filter_list) : _buildDarkButton(Icons.filter_list, 'Filter'),
+          _buildAnimatedButton(
+            icon: Icons.refresh,
+            label: 'Refresh',
+            isCollapsed: isSmall,
+            onTap: () => ref.invalidate(curseForgeScannerProvider),
           ),
           const SizedBox(width: 12.0),
-          PopupMenuButton<String>(
-            color: AppColors.surface,
-            elevation: 24,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            offset: const Offset(0, 56),
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'latest', child: Text('Latest Played', style: TextStyle(color: AppColors.textPrimary))),
-              PopupMenuItem(value: 'alpha', child: Text('Alphabetical', style: TextStyle(color: AppColors.textPrimary))),
-              PopupMenuItem(value: 'most', child: Text('Most Played', style: TextStyle(color: AppColors.textPrimary))),
-            ],
-            child: isSmall ? _buildIconButton(Icons.sort) : _buildDarkButton(Icons.sort, 'Latest\nPlayed', isTwoLines: true),
-          ),
+          ExpandingFilterButton(isSmall: isSmall),
         ],
       ),
     );
   }
 
-  Widget _buildIconButton(IconData icon, {VoidCallback? onTap}) {
-    Widget content = Container(
+  Widget _buildAnimatedButton({
+    required IconData icon,
+    required String label,
+    required bool isCollapsed,
+    required VoidCallback onTap,
+  }) {
+    Widget content = AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
       height: 56,
-      width: 56,
-      decoration: BoxDecoration(
-        color: AppColors.searchBarBackground,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          )
-        ]
-      ),
-      child: Icon(icon, color: AppColors.textPrimary, size: 24),
-    );
-
-    if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(28),
-        child: content,
-      );
-    }
-    return content;
-  }
-
-  Widget _buildDarkButton(IconData icon, String label, {bool isTwoLines = false, VoidCallback? onTap}) {
-    Widget content = Container(
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 18 : 24),
       decoration: BoxDecoration(
         color: AppColors.searchBarBackground,
         borderRadius: BorderRadius.circular(28),
@@ -138,27 +95,187 @@ class LibraryActionButtons extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: AppColors.textPrimary, size: 20),
-          const SizedBox(width: 12),
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
-              height: 1.2,
-            ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) {
+              return SizeTransition(
+                sizeFactor: animation,
+                axis: Axis.horizontal,
+                axisAlignment: -1.0,
+                child: FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+              );
+            },
+            child: isCollapsed
+                ? const SizedBox.shrink(key: ValueKey('empty'))
+                : Container(
+                    key: const ValueKey('content'),
+                    height: 56,
+                    padding: const EdgeInsets.only(left: 12),
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        height: 1.2,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
+                    ),
+                  ),
           ),
         ],
       ),
     );
 
-    if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(28),
-        child: content,
-      );
-    }
-    return content;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(28),
+      child: content,
+    );
+  }
+}
+
+class ExpandingFilterButton extends HookConsumerWidget {
+  final bool isSmall;
+  const ExpandingFilterButton({super.key, required this.isSmall});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isExpanded = useState(false);
+
+    return MouseRegion(
+      onEnter: (_) => isExpanded.value = true,
+      onExit: (_) => isExpanded.value = false,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        decoration: BoxDecoration(
+          color: AppColors.searchBarBackground,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            )
+          ]
+        ),
+        child: IntrinsicWidth(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              InkWell(
+                onTap: () => isExpanded.value = !isExpanded.value,
+                borderRadius: BorderRadius.circular(28),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  height: 56,
+                  padding: EdgeInsets.symmetric(horizontal: isSmall && !isExpanded.value ? 16 : 24),
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.filter_list, color: AppColors.textPrimary, size: 20),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        switchInCurve: Curves.easeOutCubic,
+                        switchOutCurve: Curves.easeInCubic,
+                        transitionBuilder: (child, animation) {
+                          return SizeTransition(
+                            sizeFactor: animation,
+                            axis: Axis.horizontal,
+                            axisAlignment: -1.0,
+                            child: FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: (!isSmall || isExpanded.value)
+                            ? Container(
+                                key: const ValueKey('expanded-text'),
+                                height: 56,
+                                padding: const EdgeInsets.only(left: 12),
+                                alignment: Alignment.centerLeft,
+                                child: const Text(
+                                  'Filter',
+                                  style: TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                    height: 1.2,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.clip,
+                                ),
+                              )
+                            : const SizedBox.shrink(key: ValueKey('collapsed')),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                alignment: Alignment.topCenter,
+                child: isExpanded.value
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                              child: Text(
+                                'SORT BY',
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                            ),
+                            _buildOption('Last Played'),
+                            _buildOption('Alphabetical'),
+                            _buildOption('Most Played'),
+                          ],
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOption(String text) {
+    return InkWell(
+      onTap: () {},
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
   }
 }

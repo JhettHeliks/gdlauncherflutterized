@@ -7,6 +7,7 @@ import 'widgets/library_header.dart';
 import 'widgets/library_instance_card.dart';
 import 'widgets/installing_instance_card.dart';
 import 'widgets/add_instance_card.dart';
+import 'widgets/expandable_add_button.dart';
 import 'widgets/fade_in_up.dart';
 
 class LibraryView extends ConsumerWidget {
@@ -99,9 +100,27 @@ class LibraryView extends ConsumerWidget {
               ),
               Positioned(
                 top: 24.0,
-                right: isSmall ? 20 : 40,
-                left: isSmall ? 20 : null,
-                child: const LibraryActionButtons(),
+                left: 0,
+                right: 0,
+                child: AnimatedPadding(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  padding: EdgeInsets.only(
+                    left: 20,
+                    right: isSmall ? 20 : 40,
+                  ),
+                  child: AnimatedAlign(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutCubic,
+                    alignment: isSmall ? Alignment.centerLeft : Alignment.centerRight,
+                    child: const LibraryActionButtons(),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 24.0,
+                right: isSmall ? 20.0 : 40.0,
+                child: ExpandableAddButton(isSmall: isSmall),
               ),
             ],
           ),
@@ -111,24 +130,6 @@ class LibraryView extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // TODO: Open Add Instance dialog or workflow
-        },
-        backgroundColor: AppColors.actionCyan,
-        elevation: 12,
-        isExtended: !isSmall,
-        icon: const Icon(Icons.add, color: AppColors.sidebarBackground, size: 22),
-        label: const Text(
-          'New Instance',
-          style: TextStyle(
-            color: AppColors.sidebarBackground,
-            fontWeight: FontWeight.w800,
-            fontSize: 14,
-            height: 1.0,
-          ),
-        ),
-      ),
       body: bodyContent,
     );
   }

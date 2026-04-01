@@ -10,11 +10,12 @@ import '../../theme/colors.dart';
 import 'import_dialog.dart';
 
 class AddInstanceDialog extends HookConsumerWidget {
-  const AddInstanceDialog({super.key});
+  final int initialIndex;
+  const AddInstanceDialog({super.key, this.initialIndex = 0});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tabController = useTabController(initialLength: 2);
+    final tabController = useTabController(initialLength: 2, initialIndex: initialIndex);
 
     return Dialog(
       backgroundColor: AppColors.surface,
