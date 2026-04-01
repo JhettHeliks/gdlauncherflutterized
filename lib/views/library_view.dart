@@ -24,34 +24,31 @@ class LibraryView extends ConsumerWidget {
     // Smooth grid spacing scaling
     final double gridSpacing = (screenWidth * 0.025).clamp(16.0, 32.0);
 
-    final bodyContent = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    final bodyContent = Stack(
       children: [
-        const LibraryHeader(),
-        Expanded(
-          child: Stack(
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: isSmall ? 20 : 40),
-                child: instancesAsync.when(
-                  loading: () => const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primaryAccent,
-                    ),
-                  ),
-                  error: (err, stack) => Center(
-                    child: Text(
-                      'Error loading instances: $err',
-                      style: const TextStyle(color: AppColors.textPrimary),
-                    ),
-                  ),
-                  data: (items) {
+        // Main Grid layer
+        Positioned.fill(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: isSmall ? 20 : 40),
+            child: instancesAsync.when(
+              loading: () => const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primaryAccent,
+                ),
+              ),
+              error: (err, stack) => Center(
+                child: Text(
+                  'Error loading instances: $err',
+                  style: const TextStyle(color: AppColors.textPrimary),
+                ),
+              ),
+              data: (items) {
                 // Filter out any parsed items that are currently active in downloading state
                 final completedItems = items.where((i) => !activeInstalls.containsKey(i.name)).toList();
                 final totalCount = activeList.length + completedItems.length + 1; // +1 for AddInstanceCard
 
                 return GridView.builder(
-                  padding: const EdgeInsets.only(top: 120.0, bottom: 48), // Increased top padding for floating buttons
+                  padding: EdgeInsets.only(top: isSmall ? 100.0 : 140.0, bottom: 48), // Adjusted top padding for new header overlay
                   gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 280,
                     mainAxisExtent: 380, // Taller aspect ratio as per mockup
@@ -97,33 +94,22 @@ class LibraryView extends ConsumerWidget {
                 );
               },
             ),
-              ),
-              Positioned(
-                top: 24.0,
-                left: 0,
-                right: 0,
-                child: AnimatedPadding(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOutCubic,
-                  padding: EdgeInsets.only(
-                    left: 20,
-                    right: isSmall ? 20 : 40,
-                  ),
-                  child: AnimatedAlign(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOutCubic,
-                    alignment: isSmall ? Alignment.centerLeft : Alignment.centerRight,
-                    child: const LibraryActionButtons(),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 24.0,
-                right: isSmall ? 20.0 : 40.0,
-                child: ExpandableAddButton(isSmall: isSmall),
-              ),
-            ],
           ),
+        ),
+        
+        // Header Text and Action Buttons Overlay
+        const Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: LibraryHeader(),
+        ),
+
+        // New Instance Expanding Action Button Overlay
+        Positioned(
+          bottom: 24.0,
+          right: isSmall ? 20.0 : 40.0,
+          child: ExpandableAddButton(isSmall: isSmall),
         ),
       ],
     );

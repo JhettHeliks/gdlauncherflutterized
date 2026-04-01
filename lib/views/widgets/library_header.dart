@@ -4,39 +4,88 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../providers/importer_provider.dart';
 import '../../theme/colors.dart';
 
-class LibraryHeader extends ConsumerWidget {
+class LibraryHeader extends HookConsumerWidget {
   const LibraryHeader({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isSmall = MediaQuery.sizeOf(context).width < 800;
+    final isDescriptionExpanded = useState(false);
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: isSmall ? 20 : 40, vertical: isSmall ? 12.0 : 24.0),
-      child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'Instance Library',
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: isSmall ? 28.0 : 42.0,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -0.5,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  onTap: () {
+                    if (!isSmall) isDescriptionExpanded.value = !isDescriptionExpanded.value;
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          'Instance Library',
+                          style: const TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.5,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (!isSmall) ...[
+                        const SizedBox(width: 8),
+                        AnimatedRotation(
+                          turns: isDescriptionExpanded.value ? -0.5 : 0.0,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutCubic,
+                          child: const Icon(
+                            Icons.expand_more,
+                            color: AppColors.textSecondary,
+                            size: 24,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (!isSmall)
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutCubic,
+                    alignment: Alignment.topCenter,
+                    child: isDescriptionExpanded.value
+                        ? const Padding(
+                            padding: EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              'Manage your custom modpacks and vanilla installations in\none weightless environment.',
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 14,
+                                height: 1.5,
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+              ],
             ),
           ),
-          if (!isSmall) ...[
-            const SizedBox(height: 12),
-            const Text(
-              'Manage your custom modpacks and vanilla installations in\none weightless environment.',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 14,
-                height: 1.5,
-              ),
-            ),
-          ],
+          const SizedBox(width: 24),
+          const Padding(
+            padding: EdgeInsets.only(top: 6.0),
+            child: LibraryActionButtons(),
+          ),
         ],
       ),
     );
@@ -79,7 +128,7 @@ class LibraryActionButtons extends ConsumerWidget {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
       height: 56,
-      padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 18 : 24),
+      padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 20 : 24),
       decoration: BoxDecoration(
         color: AppColors.searchBarBackground,
         borderRadius: BorderRadius.circular(28),
@@ -179,7 +228,7 @@ class ExpandingFilterButton extends HookConsumerWidget {
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOutCubic,
                   height: 56,
-                  padding: EdgeInsets.symmetric(horizontal: isSmall && !isExpanded.value ? 16 : 24),
+                  padding: EdgeInsets.symmetric(horizontal: isSmall && !isExpanded.value ? 20 : 24),
                   alignment: Alignment.centerLeft,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,

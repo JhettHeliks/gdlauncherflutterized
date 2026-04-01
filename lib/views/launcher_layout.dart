@@ -22,12 +22,17 @@ class LauncherLayout extends ConsumerWidget {
 
         return Scaffold(
           backgroundColor: AppColors.background,
-          appBar: isSmallScreen
-              ? AppBar(
-                  backgroundColor: AppColors.background,
-                  elevation: 0,
-                  scrolledUnderElevation: 0,
-                  iconTheme: const IconThemeData(color: AppColors.textPrimary),
+          appBar: null,
+          floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+          floatingActionButton: isSmallScreen
+              ? Builder(
+                  builder: (context) => FloatingActionButton(
+                    backgroundColor: AppColors.searchBarBackground,
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                    child: const Icon(Icons.menu, color: AppColors.textPrimary),
+                  ),
                 )
               : null,
           drawer: isSmallScreen
