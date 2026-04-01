@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/importer_provider.dart';
 import '../../theme/colors.dart';
 
-class LibraryHeader extends StatelessWidget {
+class LibraryHeader extends ConsumerWidget {
   const LibraryHeader({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
       child: Row(
@@ -42,6 +44,10 @@ class LibraryHeader extends StatelessWidget {
           // Right Side Actions
           Row(
             children: [
+              _buildIconButton(Icons.refresh, () {
+                ref.invalidate(curseForgeScannerProvider);
+              }),
+              const SizedBox(width: 16),
               _buildDarkButton(Icons.filter_list, 'Filter'),
               const SizedBox(width: 16),
               _buildDarkButton(Icons.sort, 'Latest\nPlayed', isTwoLines: true),
@@ -50,6 +56,29 @@ class LibraryHeader extends StatelessWidget {
             ],
           )
         ],
+      ),
+    );
+  }
+
+  Widget _buildIconButton(IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(28),
+      child: Container(
+        height: 56,
+        width: 56,
+        decoration: BoxDecoration(
+          color: AppColors.searchBarBackground,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            )
+          ]
+        ),
+        child: Icon(icon, color: AppColors.textPrimary, size: 24),
       ),
     );
   }

@@ -4,3 +4,4 @@ pub mod archive_parser;
 pub mod importer_pipeline;
 pub mod settings_manager;
 pub mod downloader;
+pub mod vanilla_manager;

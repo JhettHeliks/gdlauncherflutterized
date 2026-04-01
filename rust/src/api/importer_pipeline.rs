@@ -38,12 +38,14 @@ pub struct CurseForgeFile {
     pub required: bool,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CosmicInstance {
     pub name: String,
-    pub mc_version: String,
+    pub minecraft_version: String,
     pub modloader: String,
+    pub modloader_version: String,
+    pub source: String,
 }
 
 pub fn extract_curseforge_zip(zip_path: String) -> anyhow::Result<(String, Vec<i32>)> {
@@ -72,15 +74,26 @@ pub fn extract_curseforge_zip(zip_path: String) -> anyhow::Result<(String, Vec<i
         fs::create_dir_all(&dest_path).context("Failed to create destination folder")?;
     }
 
-    let modloader = manifest.minecraft.mod_loaders.iter()
-        .find(|l| l.primary)
-        .map_or("unknown".to_string(), |l| l.id.clone());
+    let mut ml_name = "unknown".to_string();
+    let mut ml_version = "unknown".to_string();
+    
+    if let Some(primary) = manifest.minecraft.mod_loaders.iter().find(|l| l.primary) {
+        let parts: Vec<&str> = primary.id.split('-').collect();
+        if parts.len() >= 2 {
+            ml_name = parts[0].to_string();
+            ml_version = parts[1..].join("-");
+        } else {
+            ml_name = primary.id.clone();
+        }
+    }
     
     // Create cosmic_instance.json
     let cosmic = CosmicInstance {
         name: manifest.name.clone(),
-        mc_version: manifest.minecraft.version.clone(),
-        modloader,
+        minecraft_version: manifest.minecraft.version.clone(),
+        modloader: ml_name,
+        modloader_version: ml_version,
+        source: "Cosmic Launcher".to_string(),
     };
     
     let cosmic_path = dest_path.join("cosmic_instance.json");
@@ -109,6 +122,16 @@ pub fn extract_curseforge_zip(zip_path: String) -> anyhow::Result<(String, Vec<i
                 }
                 let mut outfile = File::create(&final_path)?;
                 io::copy(&mut file, &mut outfile)?;
+            }
+        } else if !file.is_dir() {
+            if let Some(file_name) = outpath.file_name().and_then(|n| n.to_str()) {
+                let file_name_lower = file_name.to_lowercase();
+                if file_name_lower.ends_with(".png") {
+                    let final_path = dest_path.join("icon.png");
+                    if let Ok(mut outfile) = File::create(&final_path) {
+                        let _ = io::copy(&mut file, &mut outfile);
+                    }
+                }
             }
         }
     }

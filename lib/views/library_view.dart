@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/importer_provider.dart';
+import '../providers/installation_provider.dart';
 import '../theme/colors.dart';
 import 'widgets/library_header.dart';
 import 'widgets/library_instance_card.dart';
+import 'widgets/installing_instance_card.dart';
 import 'widgets/add_instance_card.dart';
 import 'widgets/fade_in_up.dart';
 
@@ -13,6 +15,8 @@ class LibraryView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final instancesAsync = ref.watch(curseForgeScannerProvider);
+    final activeInstalls = ref.watch(installationProgressProvider);
+    final activeList = activeInstalls.entries.toList();
 
     return Column(
       children: [
@@ -33,6 +37,10 @@ class LibraryView extends ConsumerWidget {
                 ),
               ),
               data: (items) {
+                // Filter out any parsed items that are currently active in downloading state
+                final completedItems = items.where((i) => !activeInstalls.containsKey(i.name)).toList();
+                final totalCount = activeList.length + completedItems.length + 1; // +1 for AddInstanceCard
+
                 return FadeInUp(
                   delay: const Duration(milliseconds: 100),
                   child: GridView.builder(
@@ -43,22 +51,33 @@ class LibraryView extends ConsumerWidget {
                       crossAxisSpacing: 24,
                       mainAxisSpacing: 32,
                     ),
-                    itemCount: items.length + 1, // +1 for the empty Add state
+                    itemCount: totalCount,
                     itemBuilder: (context, index) {
-                      if (index == items.length) {
-                        return const AddInstanceCard();
+                      if (index < activeList.length) {
+                        final activeEntry = activeList[index];
+                        final prog = activeEntry.value;
+                        return InstallingInstanceCard(
+                          title: activeEntry.key,
+                          percentage: prog.totalFiles > 0 ? (prog.downloadedFiles / prog.totalFiles * 100).toInt() : 0,
+                          currentFile: prog.currentFile,
+                        );
                       }
                       
-                      final item = items[index];
-                      return LibraryInstanceCard(
-                        title: item.name,
-                        modCountText: 'Scanned Profile', // Placeholder until mod count logic is added
-                        badges: [item.modloader.toUpperCase(), 'V${item.mcVersion}'],
-                        lastPlayedText: 'Available locally', // Placeholder
-                        imageColors: const [Color(0xFF262C31), Color(0xFF101316)], // Default mockup colors
-                        iconPath: item.iconPath,
-                        sourceApp: 'CurseForge App',
-                      );
+                      final completedIndex = index - activeList.length;
+                      if (completedIndex < completedItems.length) {
+                        final item = completedItems[completedIndex];
+                        return LibraryInstanceCard(
+                          title: item.name,
+                          modCountText: 'Scanned Profile', // Placeholder until mod count logic is added
+                          badges: [item.modloader.toUpperCase(), 'V${item.mcVersion}'],
+                          lastPlayedText: 'Available locally', // Placeholder
+                          imageColors: const [Color(0xFF262C31), Color(0xFF101316)], // Default mockup colors
+                          iconPath: item.iconPath,
+                          sourceApp: 'CurseForge App',
+                        );
+                      }
+                      
+                      return const AddInstanceCard();
                     },
                   ),
                 );

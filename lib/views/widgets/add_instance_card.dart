@@ -1,9 +1,8 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../theme/colors.dart';
-import 'import_dialog.dart';
+import 'add_instance_dialog.dart';
 
 class AddInstanceCard extends HookConsumerWidget {
   const AddInstanceCard({super.key});
@@ -16,23 +15,13 @@ class AddInstanceCard extends HookConsumerWidget {
       onEnter: (_) => isHovered.value = true,
       onExit: (_) => isHovered.value = false,
       child: GestureDetector(
-        onTap: () async {
-          final result = await FilePicker.platform.pickFiles(
-            type: FileType.custom,
-            allowedExtensions: ['zip', 'mrpack'],
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext dialogContext) {
+              return const AddInstanceDialog();
+            },
           );
-
-          if (result != null && result.files.single.path != null) {
-            final String path = result.files.single.path!;
-            if (context.mounted) {
-              showDialog(
-                context: context,
-                builder: (BuildContext dialogContext) {
-                  return ImportDialog(zipPath: path);
-                },
-              );
-            }
-          }
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),

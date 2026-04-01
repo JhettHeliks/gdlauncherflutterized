@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../src/rust/api/downloader.dart';
+import '../src/rust/api/vanilla_manager.dart';
+import 'importer_provider.dart';
 import 'log_provider.dart';
 
 final installationProgressProvider = NotifierProvider<InstallationProgressNotifier, Map<String, DownloadProgress>>(() {
@@ -57,10 +59,66 @@ class InstallationProgressNotifier extends Notifier<Map<String, DownloadProgress
         final newState = Map<String, DownloadProgress>.from(state);
         newState.remove(instanceName);
         state = newState;
+        ref.invalidate(curseForgeScannerProvider);
       });
       
     } catch (e) {
       appLogger.e('[$instanceName] Installation failed: $e');
+      final newState = Map<String, DownloadProgress>.from(state);
+      newState.remove(instanceName);
+      state = newState;
+    }
+  }
+
+  Future<void> startVanillaInstallation(String instanceName, String instancePath, String versionId) async {
+    appLogger.i('[$instanceName] Starting background vanilla downloader for $versionId...');
+    
+    // Initial UI state
+    state = {
+      ...state,
+      instanceName: const DownloadProgress(
+        totalFiles: 1,
+        downloadedFiles: 0,
+        currentFile: 'Initializing Download Engine...',
+      )
+    };
+    
+    try {
+      final stream = installVanillaVersion(
+        versionId: versionId,
+        instanceName: instanceName,
+        instancePath: instancePath,
+      );
+
+      int nextLogCheckpoint = 25; 
+
+      await for (final progress in stream) {
+        state = {
+          ...state,
+          instanceName: progress,
+        };
+        
+        if (progress.totalFiles > 0) {
+          final percentage = (progress.downloadedFiles / progress.totalFiles * 100).toInt();
+          if (percentage >= nextLogCheckpoint) {
+             appLogger.i('[$instanceName] Installation at $percentage%');
+             nextLogCheckpoint += 25;
+          }
+        }
+      }
+      
+      appLogger.i('[$instanceName] Successfully completed vanilla installation!');
+      await exportAppLogsTo(instancePath);
+      
+      Future.delayed(const Duration(seconds: 2), () {
+        final newState = Map<String, DownloadProgress>.from(state);
+        newState.remove(instanceName);
+        state = newState;
+        ref.invalidate(curseForgeScannerProvider);
+      });
+      
+    } catch (e) {
+      appLogger.e('[$instanceName] Vanilla Installation failed: $e');
       final newState = Map<String, DownloadProgress>.from(state);
       newState.remove(instanceName);
       state = newState;

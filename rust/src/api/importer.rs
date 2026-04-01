@@ -10,6 +10,7 @@ pub struct ImportableInstance {
     pub modloader: String,
     pub path: String,
     pub icon_path: Option<String>,
+    pub source: String,
 }
 
 
@@ -34,15 +35,31 @@ pub fn scan_curseforge_instances() -> Vec<ImportableInstance> {
     let instances_dir = base_dir.join("curseforge").join("minecraft").join("Instances");
 
     if !instances_dir.is_dir() {
-        return instances;
+        // Continue to local instances
+    } else {
+        if let Ok(entries) = fs::read_dir(instances_dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_dir() {
+                    if let Some(instance) = scan_single_instance(&path) {
+                        instances.push(instance);
+                    }
+                }
+            }
+        }
     }
 
-    if let Ok(entries) = fs::read_dir(instances_dir) {
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if path.is_dir() {
-                if let Some(instance) = scan_single_instance(&path) {
-                    instances.push(instance);
+    // 2. Scan local custom instances based on settings_manager
+    let settings = crate::api::settings_manager::load_settings();
+    let local_instances_dir = PathBuf::from(settings.instance_dir);
+    if local_instances_dir.is_dir() {
+        if let Ok(entries) = fs::read_dir(local_instances_dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_dir() {
+                    if let Some(instance) = scan_single_instance(&path) {
+                        instances.push(instance);
+                    }
                 }
             }
         }
@@ -52,6 +69,31 @@ pub fn scan_curseforge_instances() -> Vec<ImportableInstance> {
 }
 
 fn scan_single_instance(path: &PathBuf) -> Option<ImportableInstance> {
+    // Check for Cosmic Instance first
+    let cosmic_path = path.join("cosmic_instance.json");
+    if cosmic_path.is_file() {
+        if let Ok(config_content) = fs::read_to_string(&cosmic_path) {
+            if let Ok(cosmic) = serde_json::from_str::<crate::api::importer_pipeline::CosmicInstance>(&config_content) {
+                let local_icon = path.join("icon.png");
+                let icon_path = if local_icon.is_file() {
+                    Some(local_icon.to_string_lossy().to_string())
+                } else {
+                    None
+                };
+                
+                return Some(ImportableInstance {
+                    name: cosmic.name,
+                    mc_version: cosmic.minecraft_version,
+                    modloader: format!("{} {}", cosmic.modloader, cosmic.modloader_version),
+                    path: path.to_string_lossy().to_string(),
+                    icon_path, 
+                    source: cosmic.source,
+                });
+            }
+        }
+    }
+
+    // Fallback to legacy curseforge minecraftinstance.json
     let config_path = path.join("minecraftinstance.json");
     if !config_path.is_file() {
         return None;
@@ -109,5 +151,6 @@ fn scan_single_instance(path: &PathBuf) -> Option<ImportableInstance> {
         modloader,
         path: path.to_string_lossy().to_string(),
         icon_path,
+        source: "CurseForge App".to_string(),
     })
 }

@@ -70,18 +70,30 @@ class LibraryInstanceCard extends HookConsumerWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: iconPath != null
-                        ? (iconPath!.startsWith('http')
-                            ? Image.network(
-                                iconPath!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
-                              )
-                            : Image.file(
-                                File(iconPath!),
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
-                              ))
-                        : _buildPlaceholder(),
+                        ? Image.file(
+                            File(iconPath!),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: AppColors.background,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.videogame_asset,
+                                  color: Colors.white24,
+                                  size: 48,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(
+                            color: AppColors.background,
+                            child: const Center(
+                              child: Icon(
+                                Icons.videogame_asset,
+                                color: Colors.white24,
+                                size: 48,
+                              ),
+                            ),
+                          ),
                   ),
 
                   // Image Overlay Shadow for text readability (badges)
@@ -264,7 +276,7 @@ class LibraryInstanceCard extends HookConsumerWidget {
                         const SizedBox(width: 6),
                         Flexible(
                           child: Text(
-                            sourceApp!,
+                            sourceApp ?? 'Cosmic Launcher',
                             style: TextStyle(
                               color: isHovered.value ? AppColors.textPrimary : AppColors.textMuted,
                               fontSize: 11,
@@ -287,17 +299,10 @@ class LibraryInstanceCard extends HookConsumerWidget {
 
   Widget _buildPlaceholder() {
     return Container(
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        gradient: RadialGradient(
-          colors: imageColors,
-          center: Alignment.center,
-          radius: 1.2,
-        ),
-      ),
+      color: AppColors.background,
       child: const Center(
         child: Icon(
-          Icons.image_not_supported_outlined,
+          Icons.videogame_asset,
           color: Colors.white24,
           size: 48,
         ),

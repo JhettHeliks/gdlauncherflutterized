@@ -9,6 +9,7 @@ import 'api/importer.dart';
 import 'api/importer_pipeline.dart';
 import 'api/settings_manager.dart';
 import 'api/simple.dart';
+import 'api/vanilla_manager.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi' as ffi;
@@ -48,6 +49,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   LauncherSettings dco_decode_launcher_settings(dynamic raw);
+
+  @protected
+  List<String> dco_decode_list_String(dynamic raw);
 
   @protected
   List<ImportableInstance> dco_decode_list_importable_instance(dynamic raw);
@@ -113,6 +117,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   LauncherSettings sse_decode_launcher_settings(SseDeserializer deserializer);
+
+  @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
   List<ImportableInstance> sse_decode_list_importable_instance(
@@ -199,6 +206,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     LauncherSettings self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_importable_instance(

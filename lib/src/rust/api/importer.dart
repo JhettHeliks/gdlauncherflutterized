@@ -18,6 +18,7 @@ class ImportableInstance {
   final String modloader;
   final String path;
   final String? iconPath;
+  final String source;
 
   const ImportableInstance({
     required this.name,
@@ -25,6 +26,7 @@ class ImportableInstance {
     required this.modloader,
     required this.path,
     this.iconPath,
+    required this.source,
   });
 
   @override
@@ -33,7 +35,8 @@ class ImportableInstance {
       mcVersion.hashCode ^
       modloader.hashCode ^
       path.hashCode ^
-      iconPath.hashCode;
+      iconPath.hashCode ^
+      source.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -44,5 +47,6 @@ class ImportableInstance {
           mcVersion == other.mcVersion &&
           modloader == other.modloader &&
           path == other.path &&
-          iconPath == other.iconPath;
+          iconPath == other.iconPath &&
+          source == other.source;
 }
