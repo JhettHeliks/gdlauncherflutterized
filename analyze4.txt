@@ -1,0 +1,8 @@
+Analyzing gdlauncherflutterized...                              
+
+   info - 'scaled' is deprecated and shouldn't be used. Use scaledByVector3, scaledByVector4, or scaledByDouble instead - lib\views\dashboard_view.dart:186:12 - deprecated_member_use
+   info - 'scaled' is deprecated and shouldn't be used. Use scaledByVector3, scaledByVector4, or scaledByDouble instead - lib\views\widgets\add_instance_card.dart:19:12 - deprecated_member_use
+   info - 'scaled' is deprecated and shouldn't be used. Use scaledByVector3, scaledByVector4, or scaledByDouble instead - lib\views\widgets\browse_pack_card.dart:28:12 - deprecated_member_use
+   info - 'scaled' is deprecated and shouldn't be used. Use scaledByVector3, scaledByVector4, or scaledByDouble instead - lib\views\widgets\instance_card.dart:34:12 - deprecated_member_use
+   info - 'scaled' is deprecated and shouldn't be used. Use scaledByVector3, scaledByVector4, or scaledByDouble instead - lib\views\widgets\library_instance_card.dart:32:12 - deprecated_member_use
+
