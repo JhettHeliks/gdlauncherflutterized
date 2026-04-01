@@ -27,9 +27,39 @@ class MyApp extends StatelessWidget {
         colorScheme: const ColorScheme.dark(
           primary: AppColors.primaryAccent,
           surface: AppColors.surface,
+          secondary: AppColors.secondaryAccent,
         ),
-        fontFamily: 'Roboto', // Replace with exact font later if needed
+        fontFamily: 'Roboto',
         useMaterial3: true,
+        cardTheme: CardThemeData(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+          color: AppColors.surface,
+          elevation: 4,
+          margin: EdgeInsets.zero,
+        ),
+        dialogTheme: DialogThemeData(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+          backgroundColor: AppColors.surface,
+          elevation: 24,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+            elevation: 2,
+          ),
+        ),
+        textTheme: const TextTheme(
+          displayLarge: TextStyle(fontWeight: FontWeight.w900, fontSize: 57, letterSpacing: -0.25),
+          displayMedium: TextStyle(fontWeight: FontWeight.w800, fontSize: 45),
+          displaySmall: TextStyle(fontWeight: FontWeight.w800, fontSize: 36),
+          headlineLarge: TextStyle(fontWeight: FontWeight.w800, fontSize: 32),
+          headlineMedium: TextStyle(fontWeight: FontWeight.w700, fontSize: 28),
+          headlineSmall: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
+          titleLarge: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
+          titleMedium: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          bodyLarge: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+          bodyMedium: TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
+        ),
       ),
       home: const LauncherLayout(),
     );

@@ -17,13 +17,14 @@ class LibraryView extends ConsumerWidget {
     final instancesAsync = ref.watch(curseForgeScannerProvider);
     final activeInstalls = ref.watch(installationProgressProvider);
     final activeList = activeInstalls.entries.toList();
+    final isSmall = MediaQuery.sizeOf(context).width < 800;
 
-    return Column(
+    final bodyContent = Column(
       children: [
         const LibraryHeader(),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
+            padding: EdgeInsets.symmetric(horizontal: isSmall ? 20 : 40),
             child: instancesAsync.when(
               loading: () => const Center(
                 child: CircularProgressIndicator(
@@ -45,11 +46,11 @@ class LibraryView extends ConsumerWidget {
                   delay: const Duration(milliseconds: 100),
                   child: GridView.builder(
                     padding: const EdgeInsets.only(top: 16, bottom: 48),
-                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                       maxCrossAxisExtent: 280,
                       mainAxisExtent: 380, // Taller aspect ratio as per mockup
-                      crossAxisSpacing: 24,
-                      mainAxisSpacing: 32,
+                      crossAxisSpacing: isSmall ? 16 : 24,
+                      mainAxisSpacing: isSmall ? 16 : 32,
                     ),
                     itemCount: totalCount,
                     itemBuilder: (context, index) {
@@ -73,7 +74,7 @@ class LibraryView extends ConsumerWidget {
                           lastPlayedText: 'Available locally', // Placeholder
                           imageColors: const [Color(0xFF262C31), Color(0xFF101316)], // Default mockup colors
                           iconPath: item.iconPath,
-                          sourceApp: 'CurseForge App',
+                          sourceApp: item.source.isNotEmpty ? item.source : 'Cosmic Launcher',
                         );
                       }
                       
@@ -86,6 +87,28 @@ class LibraryView extends ConsumerWidget {
           ),
         ),
       ],
+    );
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          // TODO: Open Add Instance dialog or workflow
+        },
+        backgroundColor: AppColors.actionCyan,
+        elevation: 12,
+        icon: const Icon(Icons.add, color: AppColors.sidebarBackground, size: 22),
+        label: const Text(
+          'New Instance',
+          style: TextStyle(
+            color: AppColors.sidebarBackground,
+            fontWeight: FontWeight.w800,
+            fontSize: 14,
+            height: 1.0,
+          ),
+        ),
+      ),
+      body: bodyContent,
     );
   }
 }

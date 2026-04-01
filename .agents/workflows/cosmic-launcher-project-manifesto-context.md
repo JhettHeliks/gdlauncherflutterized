@@ -2,56 +2,49 @@
 description: You are an expert developer working on Cosmic Launcher, a high-performance Minecraft launcher built with a Flutter frontend and a Rust backend using flutter_rust_bridge (FRB).
 ---
 
+
 🛠 Tech Stack & Architecture
 
-Frontend: Flutter (Dart) using Material 3.
+Frontend: Flutter (Dart) using Material 3 Expressive.
 
-State Management: Riverpod is the strict standard. Use ConsumerWidget, HookConsumerWidget, and NotifierProvider/AsyncNotifierProvider. Avoid setState for global logic.
+State Management: Riverpod is the strict standard. Use ConsumerWidget, HookConsumerWidget, and NotifierProvider/AsyncNotifierProvider.
 
-Backend: Rust handles all heavy lifting (File System, Zip extraction, Networking).
+Backend: Rust handles heavy lifting (File System, Zip, Networking).
 
-The Bridge: flutter_rust_bridge v2. Rust logic lives in rust/src/api/.
+The Bridge: flutter_rust_bridge v2. Logic in rust/src/api/.
 
-Code Generation: Trigger updates using flutter_rust_bridge_codegen generate.
+Code Generation: flutter_rust_bridge_codegen generate.
+
+🎨 M3 Expressive Design Standards
+
+Playful Geometry: Use large corner radii (28px to 32px) for cards, dialogs, and buttons. Avoid sharp edges.
+
+Fluid Motion: Every interaction should have a transition. Use AnimatedContainer, AnimatedScale, and hero tags for navigation.
+
+Tactile Feedback: - Hover: Subtle scale up (1.02x) and increased glow/elevation.
+
+Tap: Distinct ink ripples and squash/stretch animations.
+
+Theming: Deep navy backgrounds with vibrant, glowing neon primary accents.
 
 📂 Structural Conventions
 
-Providers: Located in lib/providers/.
+Providers: lib/providers/.
 
-Views: Located in lib/views/.
+Views/Widgets: lib/views/ and lib/views/widgets/.
 
-Widgets: Located in lib/views/widgets/.
+Instance Storage: Each modpack is isolated in its own folder under a master instance_dir managed by settings_manager.rs.
 
-Instance Storage: Controlled by a global settings_manager.rs. Each modpack is isolated in its own folder under a master instance_dir.
+📜 Logging & Debugging
 
-Metadata: Every instance contains a cosmic_instance.json file for local discovery.
+App Logs: Custom LogReaderView displays app_logs.txt via the logger package.
 
-📜 Logging & Debugging Standards
-
-App Logs: Use the logger package. A custom LogReaderView exists to display app_logs.txt.
-
-Instance Logs: Every installation must create an isolated install.log inside the instance folder (managed by Rust) to record granular file-by-file progress.
-
-Progress: Real-time installation progress is handled via a StreamSink in Rust, pushed to an installationProgressProvider in Dart.
-
-🚀 Key Features Implemented
-
-CurseForge Scanner: Scans local paths for existing modpacks using directories crate.
-
-Archive Analyzer: Peeks inside .zip and .mrpack files without full extraction.
-
-Zip Extractor: Handles overrides extraction and manifest.json parsing.
-
-Concurrent Downloader: Uses reqwest and tokio to fetch .jar files using CurseForge API IDs.
-
-Settings Manager: Manages global app configuration and persistent library paths.
+Instance Logs: Rust writes granular install.log files inside each instance directory.
 
 ⚠️ Hard Rules
 
-NEVER use alert() or confirm(). Use Material 3 Dialogs or Snackerbars.
+Responsive First: Use Expanded, Flexible, and LayoutBuilder. No "Caution Tape" overflows allowed.
 
-ALWAYS await the flutter_rust_bridge_codegen process after modifying Rust API files.
+Detached Logic: Rust functions must be async and never block the Flutter UI thread.
 
-ALWAYS check for the isAuthReady state when interacting with persistent data.
-
-UI Consistency: Follow the "Cosmic Launcher" dark theme (Deep navys, primary accents, rounded corners).
+Branding: All metadata should label the source as "Cosmic Launcher".

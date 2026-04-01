@@ -146,6 +146,8 @@ class InstanceCard extends HookConsumerWidget {
                 children: [
                   Text(
                     title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 16,
@@ -155,13 +157,17 @@ class InstanceCard extends HookConsumerWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      Text(
-                        category,
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
+                      Flexible(
+                        child: Text(
+                          category,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -176,6 +182,7 @@ class InstanceCard extends HookConsumerWidget {
                       const SizedBox(width: 6),
                       Text(
                         version,
+                        maxLines: 1,
                         style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 12,

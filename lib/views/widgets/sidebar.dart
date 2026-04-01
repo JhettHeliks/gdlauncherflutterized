@@ -13,12 +13,21 @@ class Sidebar extends ConsumerWidget {
     return Container(
       width: 260,
       color: AppColors.sidebarBackground,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Logo Text
-          const Text(
+      child: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight > 64 ? constraints.maxHeight - 64 : 0,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Logo Text
+                      const Text(
             'The Cosmic\nLauncher',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -144,7 +153,13 @@ class Sidebar extends ConsumerWidget {
               ),
             ),
           ),
-        ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -155,34 +170,34 @@ class Sidebar extends ConsumerWidget {
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: isActive ? AppColors.primaryAccent : Colors.transparent,
-        borderRadius: BorderRadius.circular(24),
+        color: isActive ? AppColors.primaryAccent.withValues(alpha: 0.15) : Colors.transparent,
+        borderRadius: BorderRadius.circular(32),
         border: isActive 
             ? null 
-            : Border.all(color: AppColors.dividerColor, style: BorderStyle.solid),
+            : Border.all(color: AppColors.dividerColor.withValues(alpha: 0.5), style: BorderStyle.solid),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(32),
           onTap: () => ref.read(navigationIndexProvider.notifier).setIndex(index),
-          splashColor: AppColors.primaryAccent.withValues(alpha: 0.2),
-          highlightColor: AppColors.primaryAccent.withValues(alpha: 0.1),
+          splashColor: AppColors.primaryAccent.withValues(alpha: 0.1),
+          highlightColor: AppColors.primaryAccent.withValues(alpha: 0.05),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
                 Icon(
                   icon,
-                  color: isActive ? AppColors.sidebarBackground : AppColors.textSecondary,
-                  size: 20,
+                  color: isActive ? AppColors.primaryAccent : AppColors.textSecondary,
+                  size: 22,
                 ),
                 const SizedBox(width: 16),
                 Text(
                   title,
                   style: TextStyle(
-                    color: isActive ? AppColors.sidebarBackground : AppColors.textSecondary,
-                    fontWeight: FontWeight.w700,
+                    color: isActive ? AppColors.primaryAccent : AppColors.textSecondary,
+                    fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
                     fontSize: 15,
                   ),
                 ),

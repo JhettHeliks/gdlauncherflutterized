@@ -37,11 +37,11 @@ class LibraryInstanceCard extends HookConsumerWidget {
       onExit: (_) => isHovered.value = false,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        transform: Matrix4.translationValues(0, isHovered.value ? -5 : 0, 0)
-          .scaled(isHovered.value ? 1.02 : 1.0, isHovered.value ? 1.02 : 1.0, 1.0),
+        transform: Matrix4.translationValues(0, isHovered.value ? -8 : 0, 0)
+          .scaled(isHovered.value ? 1.03 : 1.0, isHovered.value ? 1.03 : 1.0, 1.0),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(32),
           border: Border.all(
             color: isHovered.value ? AppColors.primaryAccent.withValues(alpha: 0.3) : Colors.transparent,
             width: 1.5,
@@ -49,12 +49,23 @@ class LibraryInstanceCard extends HookConsumerWidget {
           boxShadow: isHovered.value 
               ? [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+                    color: Colors.black.withValues(alpha: 0.5),
+                    blurRadius: 32,
+                    offset: const Offset(0, 16),
+                  ),
+                  BoxShadow(
+                    color: AppColors.primaryAccent.withValues(alpha: 0.2),
+                    blurRadius: 24,
+                    spreadRadius: -4,
                   )
                 ]
-              : [],
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ],
         ),
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -68,7 +79,7 @@ class LibraryInstanceCard extends HookConsumerWidget {
                 children: [
                   // Actual image or Placeholder
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(16),
                     child: iconPath != null
                         ? Image.file(
                             File(iconPath!),
@@ -99,7 +110,7 @@ class LibraryInstanceCard extends HookConsumerWidget {
                   // Image Overlay Shadow for text readability (badges)
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(16),
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -127,7 +138,7 @@ class LibraryInstanceCard extends HookConsumerWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           color: AppColors.background.withValues(alpha: 0.8),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
@@ -255,13 +266,15 @@ class LibraryInstanceCard extends HookConsumerWidget {
                 Expanded(
                   child: Row(
                     children: [
-                      Text(
-                        lastPlayedText,
-                        style: TextStyle(
-                          color: isHovered.value ? AppColors.textPrimary : AppColors.textSecondary,
-                          fontSize: 12,
+                      Flexible(
+                        child: Text(
+                          lastPlayedText,
+                          style: TextStyle(
+                            color: isHovered.value ? AppColors.textPrimary : AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
                       if (sourceApp != null) ...[
                         const SizedBox(width: 6),
@@ -290,7 +303,7 @@ class LibraryInstanceCard extends HookConsumerWidget {
                   ),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),

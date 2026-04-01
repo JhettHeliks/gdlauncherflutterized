@@ -16,38 +16,84 @@ class LauncherLayout extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = ref.watch(navigationIndexProvider);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Left Navigation
-          const Sidebar(),
-          
-          // Main Content Area switched based on tab with smooth animation
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              transitionBuilder: (child, animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0.02, 0),
-                      end: Offset.zero,
-                    ).animate(CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOutCubic,
-                    )),
-                    child: child,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 800;
+
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: isSmallScreen
+              ? AppBar(
+                  backgroundColor: AppColors.background,
+                  elevation: 0,
+                  scrolledUnderElevation: 0,
+                  iconTheme: const IconThemeData(color: AppColors.textPrimary),
+                )
+              : null,
+          drawer: isSmallScreen
+              ? Theme(
+                  data: Theme.of(context).copyWith(
+                    drawerTheme: const DrawerThemeData(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.horizontal(right: Radius.circular(32)),
+                      ),
+                      backgroundColor: AppColors.sidebarBackground,
+                      elevation: 16,
+                    ),
                   ),
-                );
-              },
-              child: _buildMainContent(selectedIndex),
-            ),
-          )
-        ],
-      ),
+                  child: const Drawer(
+                    child: Sidebar(),
+                  ),
+                )
+              : null,
+          body: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Left Navigation with M3 Fluid Fold Animation
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 350),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  return SizeTransition(
+                    sizeFactor: animation,
+                    axis: Axis.horizontal,
+                    axisAlignment: -1.0, // Anchors to the left edge
+                    child: FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    ),
+                  );
+                },
+                child: isSmallScreen ? const SizedBox.shrink() : const Sidebar(),
+              ),
+              
+              // Main Content Area switched based on tab with smooth animation
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0.02, 0),
+                          end: Offset.zero,
+                        ).animate(CurvedAnimation(
+                          parent: animation,
+                          curve: Curves.easeOutCubic,
+                        )),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: _buildMainContent(selectedIndex),
+                ),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 

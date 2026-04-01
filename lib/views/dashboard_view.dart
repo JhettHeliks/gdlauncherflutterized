@@ -119,7 +119,7 @@ class _DashboardHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 160,
+      constraints: const BoxConstraints(minHeight: 160),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
@@ -209,7 +209,11 @@ class _QuickLaunchCard extends HookConsumerWidget {
           ],
         ),
         padding: const EdgeInsets.all(32),
-        child: Row(
+        child: Wrap(
+          alignment: WrapAlignment.start,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 32,
+          runSpacing: 32,
           children: [
             // Left Side: Instance Image Placeholder
             Container(
@@ -227,10 +231,10 @@ class _QuickLaunchCard extends HookConsumerWidget {
                 child: Icon(Icons.videogame_asset, size: 48, color: Colors.white),
               ),
             ),
-            const SizedBox(width: 32),
             
             // Middle Content: Instance Info
-            Expanded(
+            Container(
+              constraints: const BoxConstraints(minWidth: 180, maxWidth: 400),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -253,13 +257,17 @@ class _QuickLaunchCard extends HookConsumerWidget {
                            ),
                          ),
                          const SizedBox(width: 6),
-                         Text(
-                           instance.badgeText,
-                           style: const TextStyle(
-                             color: AppColors.secondaryAccent,
-                             fontWeight: FontWeight.w800,
-                             fontSize: 10,
-                             letterSpacing: 1.0,
+                         Flexible(
+                           child: Text(
+                             instance.badgeText,
+                             maxLines: 1,
+                             overflow: TextOverflow.ellipsis,
+                             style: const TextStyle(
+                               color: AppColors.secondaryAccent,
+                               fontWeight: FontWeight.w800,
+                               fontSize: 10,
+                               letterSpacing: 1.0,
+                             ),
                            ),
                          ),
                        ],
@@ -270,6 +278,8 @@ class _QuickLaunchCard extends HookConsumerWidget {
                    // Title
                    Text(
                      instance.title,
+                     maxLines: 2,
+                     overflow: TextOverflow.ellipsis,
                      style: const TextStyle(
                        color: AppColors.textPrimary,
                        fontSize: 32,
@@ -282,6 +292,8 @@ class _QuickLaunchCard extends HookConsumerWidget {
                    // Details
                    Text(
                      '${instance.version} • PlayTime: ${instance.totalPlayTime} • ${instance.lastPlayedTime}',
+                     maxLines: 2,
+                     overflow: TextOverflow.ellipsis,
                      style: const TextStyle(
                        color: AppColors.textMuted,
                        fontSize: 14,
@@ -312,21 +324,27 @@ class _QuickLaunchCard extends HookConsumerWidget {
                   ),
                 ],
               ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.play_arrow_rounded, color: AppColors.sidebarBackground, size: 36),
-                  SizedBox(width: 8),
-                  Text(
-                    'PLAY',
-                    style: TextStyle(
-                      color: AppColors.sidebarBackground,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.0,
-                    ),
+              child: const FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.play_arrow_rounded, color: AppColors.sidebarBackground, size: 36),
+                      SizedBox(width: 8),
+                      Text(
+                        'PLAY',
+                        style: TextStyle(
+                          color: AppColors.sidebarBackground,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ],
