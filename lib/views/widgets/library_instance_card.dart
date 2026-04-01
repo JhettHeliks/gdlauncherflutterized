@@ -32,7 +32,9 @@ class LibraryInstanceCard extends HookConsumerWidget {
     final isInstalling = installState.containsKey(title);
     final progress = installState[title];
 
-    return MouseRegion(
+    return GestureDetector(
+      onSecondaryTapDown: (details) => _showContextMenu(context, ref, details.globalPosition),
+      child: MouseRegion(
       onEnter: (_) => isHovered.value = true,
       onExit: (_) => isHovered.value = false,
       child: AnimatedContainer(
@@ -307,7 +309,61 @@ class LibraryInstanceCard extends HookConsumerWidget {
           ],
         ),
       ),
-    );
+    ));
+  }
+
+  void _showContextMenu(BuildContext context, WidgetRef ref, Offset position) {
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(position.dx, position.dy, position.dx + 1, position.dy + 1),
+      color: AppColors.sidebarBackground, // Deep navy background
+      elevation: 24,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(32),
+        side: BorderSide(color: AppColors.dividerColor.withValues(alpha: 0.1), width: 1),
+      ),
+      items: <PopupMenuEntry<String>>[
+        PopupMenuItem<String>(
+          value: 'open',
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: Row(
+            children: const [
+              Icon(Icons.folder_open, color: AppColors.textPrimary, size: 20),
+              SizedBox(width: 14),
+              Text('Open Local Folder', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
+            ],
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'repair',
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: Row(
+            children: const [
+              Icon(Icons.build_circle, color: AppColors.actionCyan, size: 20),
+              SizedBox(width: 14),
+              Text('Repair Instance', style: TextStyle(color: AppColors.actionCyan, fontWeight: FontWeight.w700, fontSize: 13)),
+            ],
+          ),
+        ),
+        const PopupMenuDivider(height: 16),
+        PopupMenuItem<String>(
+          value: 'delete',
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: Row(
+            children: const [
+              Icon(Icons.delete_forever, color: Colors.redAccent, size: 20),
+              SizedBox(width: 14),
+              Text('Delete Instance', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w700, fontSize: 13)),
+            ],
+          ),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        // TODO: Wire up actual rust bridge calls
+        debugPrint('Context Menu Action Selected: $value on $title');
+      }
+    });
   }
 
   Widget _buildPlaceholder() {

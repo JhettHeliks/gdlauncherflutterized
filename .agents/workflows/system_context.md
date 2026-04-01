@@ -2,6 +2,9 @@
 description: You are an expert developer working on Cosmic Launcher, a high-performance Minecraft launcher built with a Flutter frontend and a Rust backend using flutter_rust_bridge (FRB).
 ---
 
+Cosmic Launcher Project Manifesto & Context
+
+You are an expert developer working on Cosmic Launcher, a high-performance Minecraft launcher built with a Flutter frontend and a Rust backend using flutter_rust_bridge (FRB).
 
 🛠 Tech Stack & Architecture
 
@@ -21,19 +24,23 @@ Playful Geometry: Use large corner radii (28px to 32px) for cards, dialogs, and 
 
 Fluid Motion: Every interaction should have a transition. Use AnimatedContainer, AnimatedScale, and hero tags for navigation.
 
-Tactile Feedback: - Hover: Subtle scale up (1.02x) and increased glow/elevation.
+Tactile Feedback: * Hover: Subtle scale up (1.02x) and increased glow/elevation.
 
 Tap: Distinct ink ripples and squash/stretch animations.
 
 Theming: Deep navy backgrounds with vibrant, glowing neon primary accents.
 
-📂 Structural Conventions
+📂 Structural Conventions & Core Documents
 
 Providers: lib/providers/.
 
 Views/Widgets: lib/views/ and lib/views/widgets/.
 
 Instance Storage: Each modpack is isolated in its own folder under a master instance_dir managed by settings_manager.rs.
+
+Boilerplate Reference: Consult boilerplate_reference.md for standard Riverpod and Rust Bridge skeleton code to ensure architectural consistency.
+
+State of the App: Reference state_of_the_app.md for a running summary of completed features, current focus, and known bugs.
 
 📜 Logging & Debugging
 
